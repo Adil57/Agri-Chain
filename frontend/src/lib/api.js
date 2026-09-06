@@ -63,6 +63,16 @@ export const api = {
   createPayment: (amount) => request('/api/payment/create-order', { method: 'POST', body: { amount } }),
   // AI grading (Gemini vision)
   gradeImage: (image, mimeType, crop) => request('/api/grade', { method: 'POST', body: { image, mimeType, crop } }),
+  // admin
+  adminLogin: (email, password) => request('/api/admin/login', { method: 'POST', body: { email, password } }),
+  adminStats: () => request('/api/admin/stats'),
+  adminUsers: () => request('/api/admin/users'),
+  adminApproveUser: (id, approved) => request(`/api/admin/users/${id}/approve`, { method: 'POST', body: { approved } }),
+  adminDeleteUser: (id) => request(`/api/admin/users/${id}`, { method: 'DELETE' }),
+  adminOrders: () => request('/api/admin/orders'),
+  adminDeleteOrder: (id) => request(`/api/admin/orders/${id}`, { method: 'DELETE' }),
+  adminListings: () => request('/api/admin/listings'),
+  adminDeleteListing: (id) => request(`/api/admin/listings/${id}`, { method: 'DELETE' }),
 }
 
 export default api

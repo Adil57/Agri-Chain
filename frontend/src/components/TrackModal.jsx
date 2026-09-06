@@ -24,6 +24,7 @@ export default function TrackModal({ orderId, canManage, onClose }) {
   const [data, setData] = useState(null)
   const [err, setErr] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [livePos, setLivePos] = useState(null)
 
   const load = async () => {
     try {
@@ -32,6 +33,16 @@ export default function TrackModal({ orderId, canManage, onClose }) {
       return d
     } catch (e) { setErr(e.message) }
   }
+
+  // get user's live GPS location (real-time)
+  useEffect(() => {
+    if (!navigator.geolocation) return
+    navigator.geolocation.watchPosition(
+      (pos) => setLivePos([pos.coords.latitude, pos.coords.longitude]),
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 5000 }
+    )
+  }, [])
 
   // init map once we have data
   useEffect(() => { load() }, [orderId])
@@ -45,7 +56,6 @@ export default function TrackModal({ orderId, canManage, onClose }) {
       }).addTo(mapRef.current)
     }
     const map = mapRef.current
-    // clear old layers (except tiles)
     map.eachLayer((l) => { if (!(l instanceof L.TileLayer)) map.removeLayer(l) })
 
     const { farm, dest, route, truck } = data
@@ -55,10 +65,16 @@ export default function TrackModal({ orderId, canManage, onClose }) {
     L.marker([farm.lat, farm.lng], { icon: pin('🌾', '#16a34a') }).addTo(map).bindPopup(`<b>Farm</b><br>${farm.place}`)
     L.marker([dest.lat, dest.lng], { icon: pin('🏭', '#2563eb') }).addTo(map).bindPopup(`<b>Buyer</b><br>${dest.place}`)
     if (truck) L.marker(truck, { icon: truckIcon }).addTo(map).bindPopup(`🚚 ${data.ship_status}`)
+    // live user position (real-time GPS)
+    if (livePos) {
+      L.marker(livePos, { icon: pin('📍', '#ef4444') }).addTo(map).bindPopup('You (live)')
+    }
 
-    map.fitBounds(L.latLngBounds(line), { padding: [40, 40] })
+    const bounds = L.latLngBounds(line)
+    if (livePos) bounds.extend(livePos)
+    map.fitBounds(bounds, { padding: [40, 40] })
     setTimeout(() => map.invalidateSize(), 100)
-  }, [data])
+  }, [data, livePos])
 
   // cleanup map on unmount
   useEffect(() => () => { if (mapRef.current) { mapRef.current.remove(); mapRef.current = null } }, [])

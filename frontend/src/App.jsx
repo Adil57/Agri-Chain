@@ -6,6 +6,7 @@ import B2BPortal from './pages/B2BPortal'
 import B2CStorefront from './pages/B2CStorefront'
 import AIPanel from './pages/AIPanel'
 import OrdersPage from './pages/OrdersPage'
+import AdminPanel from './pages/AdminPanel'
 import RoleGuard from './components/RoleGuard'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin" element={<AdminPanel />} />
 
         {/* Role-specific pages */}
         <Route path="/farmer" element={
