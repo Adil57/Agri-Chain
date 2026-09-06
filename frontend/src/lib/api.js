@@ -54,6 +54,7 @@ export const api = {
   trackOrder: (id) => request(`/api/orders/${id}/track`),
   setShipStatus: (id, ship_status) => request(`/api/orders/${id}/ship`, { method: 'POST', body: { ship_status } }),
   setOrderStatus: (id, status) => request(`/api/orders/${id}/status`, { method: 'POST', body: { status } }),
+  deleteOrder: (id) => request(`/api/orders/${id}`, { method: 'DELETE' }),
   escrowSummary: () => request('/api/escrow/summary'),
   getNotifications: () => request('/api/notifications'),
   markRead: () => request('/api/notifications/read', { method: 'POST', body: {} }),

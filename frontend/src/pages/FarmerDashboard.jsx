@@ -48,6 +48,7 @@ export default function FarmerDashboard() {
 
   const [form, setForm] = useState({
     crop: '', qty: '', unit: 'Quintal', price: '',
+    bulk_price: '', retail_price: '',
     availability: 'Available Now', harvestDate: '', pickup: 'Farm-Gate Pickup',
   })
 
@@ -281,6 +282,8 @@ export default function FarmerDashboard() {
         qty: form.qty.trim(),
         unit: form.unit,
         price: form.price.trim(),
+        bulk_price: form.bulk_price.trim() || form.price.trim(),
+        retail_price: form.retail_price.trim() || '',
         availability: form.availability,
         harvest_date: form.harvestDate,
         pickup: form.pickup,
@@ -377,12 +380,24 @@ export default function FarmerDashboard() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-3 mb-6">
-              <input value={form.price} onChange={(e) => updateForm('price', e.target.value)} placeholder={t('Expected Base Price (₹)')} inputMode="numeric" className="border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50" />
+              <input value={form.price} onChange={(e) => updateForm('price', e.target.value)} placeholder={t('Base List Price (₹/unit)')} inputMode="numeric" className="border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50" />
               {form.availability === 'Pre-Order' ? (
                 <input type="date" value={form.harvestDate} onChange={(e) => updateForm('harvestDate', e.target.value)} className="border border-black/10 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/50" />
               ) : (
                 <div className="border border-black/10 rounded-xl px-4 py-3 text-sm bg-green-50 text-green-700 font-semibold">{t('Immediate pickup enabled')}</div>
               )}
+            </div>
+
+            {/* Dual pricing: bulk (B2B) + small order 5kg expected (B2C) */}
+            <div className="grid md:grid-cols-2 gap-3 mb-6">
+              <div>
+                <p className="text-[11px] font-semibold text-black/45 mb-1.5 flex items-center gap-1"><Package size={12} /> {t('Bulk Order Price (₹/Quintal) — for B2B buyers')}</p>
+                <input value={form.bulk_price} onChange={(e) => updateForm('bulk_price', e.target.value)} placeholder={t('e.g. 1800')} inputMode="numeric" className="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-black/45 mb-1.5 flex items-center gap-1"><Package size={12} /> {t('Small Order (5kg) Expected Price (₹/kg) — for B2C')}</p>
+                <input value={form.retail_price} onChange={(e) => updateForm('retail_price', e.target.value)} placeholder={t('e.g. 24')} inputMode="numeric" className="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50" />
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-5 mb-6">

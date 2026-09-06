@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Package, Download, CheckCircle2, Clock, Truck, IndianRupee, RefreshCw, MapPin } from 'lucide-react'
+import { Package, Download, CheckCircle2, Clock, Truck, IndianRupee, RefreshCw, MapPin, Trash2 } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -110,6 +110,17 @@ export default function OrdersPage() {
                   <div className="flex flex-wrap gap-2">
                     <Button variant="outline" icon={MapPin} onClick={() => setTrackId(o.id)}>{t('Track')}</Button>
                     <Button variant="outline" icon={Download} onClick={() => downloadInvoice(o)}>{t('Invoice')}</Button>
+
+                    {/* farmer accepts/rejects a newly placed order */}
+                    {isFarmer && (o.status === 'Order Placed' || o.status === 'In Escrow') && (
+                      <>
+                        <Button variant="primary" icon={CheckCircle2} onClick={() => advance(o, 'In Escrow')}>{t('Accept Order')}</Button>
+                        <Button variant="outline" icon={Trash2} onClick={async () => {
+                          if (!confirm(t('Reject this order? It will be deleted.'))) return
+                          try { await api.deleteOrder(o.id); showToast(t('Order rejected')); load() } catch (e) { showToast(e.message) }
+                        }}>{t('Reject')}</Button>
+                      </>
+                    )}
 
                     {/* buyer confirms delivery */}
                     {!isFarmer && o.status === 'In Escrow' && (

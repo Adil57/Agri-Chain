@@ -23,6 +23,12 @@ export default function LoginPage() {
   const [city, setCity] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [businessName, setBusinessName] = useState('')
+  const [repName, setRepName] = useState('')
+  const [gst, setGst] = useState('')
+  const [bankIfsc, setBankIfsc] = useState('')
+  const [bankAccount, setBankAccount] = useState('')
+  const [authDoc, setAuthDoc] = useState('')
   const [selectedRole, setSelectedRole] = useState(null)
   const [error, setError] = useState('')
 
@@ -42,6 +48,12 @@ export default function LoginPage() {
           name: name.trim(), email: email.trim(), password,
           role: selectedRole.id, org: org.trim() || undefined,
           city: city.trim() || undefined,
+          business_name: businessName.trim() || undefined,
+          rep_name: repName.trim() || undefined,
+          gst: gst.trim() || undefined,
+          bank_ifsc: bankIfsc.trim() || undefined,
+          bank_account: bankAccount.trim() || undefined,
+          auth_doc_url: authDoc.trim() || undefined,
         })
         navigate(roleHome[user.role] || '/')
       }
@@ -86,10 +98,39 @@ export default function LoginPage() {
               <input value={name} onChange={(e) => { setName(e.target.value); setError('') }}
                 placeholder={t('e.g. Ramesh Kumar')} className={inp} />
             </Field>
-            <Field icon={Building2} label={t('Organisation (optional)')}>
-              <input value={org} onChange={(e) => setOrg(e.target.value)}
-                placeholder={t('e.g. Nashik FPO')} className={inp} />
-            </Field>
+            {selectedRole?.id === 'b2b' ? (
+              <>
+                <Field icon={Building2} label={t('Business Name')}>
+                  <input value={businessName} onChange={(e) => setBusinessName(e.target.value)}
+                    placeholder={t('e.g. Sharma Agro Mills Pvt Ltd')} className={inp} />
+                </Field>
+                <Field icon={User} label={t('Representative Name')}>
+                  <input value={repName} onChange={(e) => setRepName(e.target.value)}
+                    placeholder={t('e.g. Amit Sharma')} className={inp} />
+                </Field>
+                <Field icon={Building2} label={t('GST / Invoice No. (Optional)')}>
+                  <input value={gst} onChange={(e) => setGst(e.target.value)}
+                    placeholder={t('e.g. 27AABCU9603R1Z')} className={inp} />
+                </Field>
+                <Field icon={Building2} label={t('Bank IFSC')}>
+                  <input value={bankIfsc} onChange={(e) => setBankIfsc(e.target.value)}
+                    placeholder={t('e.g. SBIN0001234')} className={inp} />
+                </Field>
+                <Field icon={Building2} label={t('Bank Account No.')}>
+                  <input value={bankAccount} onChange={(e) => setBankAccount(e.target.value)}
+                    placeholder={t('e.g. 123456789012')} className={inp} />
+                </Field>
+                <Field icon={Building2} label={t('Auth Document URL (Optional)')}>
+                  <input value={authDoc} onChange={(e) => setAuthDoc(e.target.value)}
+                    placeholder={t('e.g. https://supabase.co/storage/.../doc.pdf')} className={inp} />
+                </Field>
+              </>
+            ) : (
+              <Field icon={Building2} label={t('Organisation (optional)')}>
+                <input value={org} onChange={(e) => setOrg(e.target.value)}
+                  placeholder={t('e.g. Nashik FPO')} className={inp} />
+              </Field>
+            )}
             <Field icon={MapPin} label={selectedRole?.id === 'farmer' ? t('Farm Location (city/town)') : t('Delivery City')}>
               <input value={city} onChange={(e) => { setCity(e.target.value); setError('') }}
                 placeholder={t('e.g. Lasalgaon, Nashik')} className={inp} />

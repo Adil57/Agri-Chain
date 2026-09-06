@@ -110,7 +110,8 @@ app.post('/api/grade', auth, async (req, res) => {
 
 // ---------- auth ----------
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password, role, org, city, address } = req.body || {}
+  const { name, email, password, role, org, city, address,
+          business_name, rep_name, auth_doc_url, gst, bank_ifsc, bank_account, bank_name } = req.body || {}
   if (!name || !email || !password || !role)
     return res.status(400).json({ error: 'name, email, password, role required' })
   if (!['farmer', 'b2b', 'b2c'].includes(role))
@@ -128,8 +129,14 @@ app.post('/api/auth/register', async (req, res) => {
 
   const hash = bcrypt.hashSync(password, 10)
   const info = db.prepare(
-    'INSERT INTO users (name,email,password_hash,role,org,address) VALUES (?,?,?,?,?,?)'
-  ).run(name, email, hash, role, org || null, address?.trim() || city?.trim() || '')
+    `INSERT INTO users (name,email,password_hash,role,org,address,business_name,rep_name,gst,bank_ifsc,bank_account,bank_name,auth_doc_url)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+  ).run(
+    name, email, hash, role, org || null, address?.trim() || city?.trim() || '',
+    business_name?.trim() || null, rep_name?.trim() || null, gst?.trim() || null,
+    bank_ifsc?.trim() || null, bank_account?.trim() || null, bank_name?.trim() || null,
+    auth_doc_url?.trim() || null
+  )
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(info.lastInsertRowid)
   res.json({ token: sign(user), user: publicUser(user) })
 })

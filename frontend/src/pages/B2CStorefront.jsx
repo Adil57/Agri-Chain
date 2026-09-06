@@ -28,6 +28,8 @@ export default function B2CStorefront() {
   const { listings, fetchListings } = useListingsStore()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
+  const [cropFilter, setCropFilter] = useState('All')
+  const [maxPrice, setMaxPrice] = useState('')
 
   useEffect(() => {
     fetchListings()
@@ -38,8 +40,10 @@ export default function B2CStorefront() {
     const live = listings
       .filter((l) => Number(l.qty) > 0)
       .map((l, i) => {
-        const perKg = l.unit === 'Quintal' ? Number(l.price) / 100 : Number(l.price)
-        const retail = Math.max(1, Math.round(perKg * 1.18))
+        const perKg = l.retail_price
+          ? Number(l.retail_price)
+          : (l.unit === 'Quintal' ? Number(l.price) / 100 : Number(l.price)) * 1.18
+        const retail = Math.max(1, Math.round(perKg))
         return {
           id: l.id,
           name: l.crop,
@@ -49,10 +53,22 @@ export default function B2CStorefront() {
           delivery: l.availability === 'Available Now' ? 'Same Day' : 'Pre-Order',
           color: COLORS[i % COLORS.length],
           photo: l.photo || '',
+          cropKey: (l.crop || '').toLowerCase(),
         }
       })
     return live.length > 0 ? live : fallback
   }, [listings])
+
+  const cropTypes = useMemo(() => {
+    const set = new Set(products.map((p) => p.name))
+    return ['All', ...Array.from(set)]
+  }, [products])
+
+  const filtered = products.filter((p) => {
+    if (cropFilter !== 'All' && p.name !== cropFilter) return false
+    if (maxPrice && Number(p.price) > Number(maxPrice)) return false
+    return true
+  })
 
   const cartCount = items.reduce((sum, i) => sum + i.qty, 0)
 
@@ -86,8 +102,22 @@ export default function B2CStorefront() {
       <div className="max-w-6xl mx-auto px-5 py-10 pb-28">
         <PageHeader eyebrow={t('B2C Store')} title={t('Fresh from the Farm')} subtitle={t('Straight from farmers, to your home.')} />
 
+        {/* Filters */}
+        <div className="flex flex-wrap gap-2.5 mb-7">
+          <select value={cropFilter} onChange={(e) => setCropFilter(e.target.value)} className="border border-black/10 bg-white rounded-full px-4 py-2 text-sm">
+            {cropTypes.map((c) => <option key={c} value={c}>{c === 'All' ? t('All Crops') : c}</option>)}
+          </select>
+          <input
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            placeholder={t('Max Price ₹/kg')}
+            inputMode="numeric"
+            className="border border-black/10 bg-white rounded-full px-4 py-2 text-sm w-40"
+          />
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          {products.map((p, i) => (
+          {filtered.map((p, i) => (
             <Card key={p.id || i} delay={i * 0.08} className="overflow-hidden">
               <div className={`h-24 bg-gradient-to-br ${p.color} relative`}>
                 {p.photo && (
