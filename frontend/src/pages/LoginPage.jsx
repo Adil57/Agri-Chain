@@ -113,6 +113,26 @@ export default function LoginPage() {
               </div>
 
               {mode === 'register' && (
+                <div className="mb-5">
+                  <p className="text-sm font-semibold text-[#16240a] mb-2.5">{t('Who are you?')}</p>
+                  <div className="space-y-2.5">
+                    {roles.map((r) => (
+                      <button key={r.id} onClick={() => { setSelectedRole(r); setError('') }}
+                        className={`w-full flex items-center gap-3.5 p-3 rounded-2xl border-2 transition text-left ${selectedRole?.id === r.id ? 'border-amber-400 bg-amber-50' : 'border-black/10 hover:border-black/20'}`}>
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${selectedRole?.id === r.id ? 'bg-amber-500 text-white' : 'bg-black/5 text-black/50'}`}>
+                          <r.icon size={17} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-[#16240a]">{r.label}</p>
+                          <p className="text-xs text-black/45">{r.desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {mode === 'register' && (
                 <>
                   <Field icon={User} label={t('Your Name')}>
                     <input value={name} onChange={(e) => { setName(e.target.value); setError('') }}
@@ -168,26 +188,6 @@ export default function LoginPage() {
                   placeholder="••••••••" className={inp}
                   onKeyDown={(e) => e.key === 'Enter' && mode === 'login' && submit()} />
               </Field>
-
-              {mode === 'register' && (
-                <div className="mb-5">
-                  <p className="text-sm font-semibold text-[#16240a] mb-2.5">{t('Who are you?')}</p>
-                  <div className="space-y-2.5">
-                    {roles.map((r) => (
-                      <button key={r.id} onClick={() => { setSelectedRole(r); setError('') }}
-                        className={`w-full flex items-center gap-3.5 p-3 rounded-2xl border-2 transition text-left ${selectedRole?.id === r.id ? 'border-amber-400 bg-amber-50' : 'border-black/10 hover:border-black/20'}`}>
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${selectedRole?.id === r.id ? 'bg-amber-500 text-white' : 'bg-black/5 text-black/50'}`}>
-                          <r.icon size={17} />
-                        </div>
-                        <div>
-                          <p className="font-bold text-sm text-[#16240a]">{r.label}</p>
-                          <p className="text-xs text-black/45">{r.desc}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {error && <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2 mb-4">{error}</p>}
 
