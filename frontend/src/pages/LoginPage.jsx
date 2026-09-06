@@ -132,7 +132,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {mode === 'register' && (
+              {mode === 'register' && selectedRole && (
                 <>
                   <Field icon={User} label={t('Your Name')}>
                     <input value={name} onChange={(e) => { setName(e.target.value); setError('') }}
@@ -178,16 +178,20 @@ export default function LoginPage() {
                 </>
               )}
 
-              <Field icon={Mail} label={t('Email')}>
-                <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }}
-                  placeholder="you@example.com" className={inp} />
-              </Field>
+              {(mode === 'login' || selectedRole) && (
+                <Field icon={Mail} label={t('Email')}>
+                  <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }}
+                    placeholder="you@example.com" className={inp} />
+                </Field>
+              )}
 
-              <Field icon={Lock} label={t('Password')}>
-                <input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }}
-                  placeholder="••••••••" className={inp}
-                  onKeyDown={(e) => e.key === 'Enter' && mode === 'login' && submit()} />
-              </Field>
+              {(mode === 'login' || selectedRole) && (
+                <Field icon={Lock} label={t('Password')}>
+                  <input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }}
+                    placeholder="••••••••" className={inp}
+                    onKeyDown={(e) => e.key === 'Enter' && mode === 'login' && submit()} />
+                </Field>
+              )}
 
               {error && <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2 mb-4">{error}</p>}
 
