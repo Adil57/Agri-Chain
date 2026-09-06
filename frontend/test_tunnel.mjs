@@ -1,0 +1,24 @@
+import { chromium } from 'playwright-core';
+const FE = "https://tag-dated-reduce-graphs.trycloudflare.com";
+const browser = await chromium.launch({ executablePath: '/snap/bin/chromium', args: ['--no-sandbox'] });
+const page = await browser.newPage();
+const errors = [], apiCalls = [];
+page.on('console', m => { if (m.type()==='error') errors.push(m.text()); });
+page.on('pageerror', e => errors.push('PAGEERR: '+e.message));
+page.on('requestfailed', r => { if(r.url().includes('/api/')) errors.push('REQFAIL: '+r.url()+' '+(r.failure()?.errorText||'')); });
+page.on('request', r => { if(r.url().includes('/api/')) apiCalls.push('REQ '+r.method()+' '+r.url().replace('https://johnston-think-uniprotkb-comparisons.trycloudflare.com','[BE]')); });
+page.on('response', r => { if(r.url().includes('/api/')) apiCalls.push('RES '+r.status()+' '+r.url().replace('https://johnston-think-uniprotkb-comparisons.trycloudflare.com','[BE]')); });
+
+await page.goto(FE + '/login', { waitUntil: 'domcontentloaded', timeout: 40000 });
+console.log('Loaded:', page.url());
+await page.fill('input[type="email"]', 'ramesh@demo.in');
+await page.fill('input[type="password"]', 'demo1234');
+const btn = page.locator('button', { hasText: /login/i }).last();
+await btn.click({ timeout: 10000 });
+await page.waitForTimeout(15000);
+const body = await page.textContent('body');
+console.log('HAS Please wait:', body.includes('Please wait'));
+console.log('URL after:', page.url());
+console.log('API CALLS:'); apiCalls.forEach(c=>console.log('  '+c));
+console.log('ERRORS:', JSON.stringify(errors.slice(0,10)));
+await browser.close();
