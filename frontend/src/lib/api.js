@@ -11,10 +11,17 @@ function getToken() {
   }
 }
 
+let adminToken = null
+function getAdminToken() { return adminToken }
+
 async function request(path, { method = 'GET', body } = {}) {
   const headers = { 'Content-Type': 'application/json' }
   const token = getToken()
   if (token) headers.Authorization = `Bearer ${token}`
+  // admin routes use the separate admin token
+  if (path.startsWith('/api/admin') && adminToken) {
+    headers.Authorization = `Bearer ${adminToken}`
+  }
 
   const res = await fetch(BASE + path, {
     method,
@@ -38,6 +45,7 @@ async function request(path, { method = 'GET', body } = {}) {
 
 export const api = {
   base: BASE,
+  setAdminToken: (t) => { adminToken = t },
   // auth
   register: (payload) => request('/api/auth/register', { method: 'POST', body: payload }),
   login: (email, password) => request('/api/auth/login', { method: 'POST', body: { email, password } }),

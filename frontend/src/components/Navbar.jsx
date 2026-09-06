@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Sprout, Store, ShoppingBasket, BrainCircuit, Menu, Bell, ChevronDown, LogOut, Receipt } from 'lucide-react'
+import { Sprout, Store, ShoppingBasket, BrainCircuit, Menu, Bell, ChevronDown, LogOut, Receipt, Shield } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNotificationStore } from '../store/useNotificationStore'
@@ -77,6 +77,9 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2">
           <LanguageSwitcher dark />
+          <Link to="/admin" className="hidden sm:flex items-center justify-center p-2 rounded-full hover:bg-white/10" title="Admin Panel">
+            <Shield size={17} />
+          </Link>
           <div className="relative">
             <button onClick={openNotif} className="relative p-2 rounded-full hover:bg-white/10">
               <Bell size={18} />

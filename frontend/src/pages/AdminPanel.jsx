@@ -1,12 +1,14 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Shield, Users, ShoppingBag, Package, CheckCircle2, XCircle, Trash2, RefreshCw } from 'lucide-react'
+import { Shield, Users, ShoppingBag, Package, CheckCircle2, XCircle, Trash2, RefreshCw, Lock } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import PageHeader from '../components/ui/PageHeader'
 import api from '../lib/api'
 import { useT } from '../i18n/index.jsx'
+
+const ADMIN_TOKEN_KEY = 'krishisetu-admin'
 
 export default function AdminPanel() {
   const t = useT()
@@ -17,8 +19,28 @@ export default function AdminPanel() {
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState(null)
+  const [authed, setAuthed] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loginErr, setLoginErr] = useState('')
 
   const showToast = (m) => { setToast(m); setTimeout(() => setToast(null), 2500) }
+
+  // on mount, check for stored admin token
+  useEffect(() => {
+    const tk = localStorage.getItem(ADMIN_TOKEN_KEY)
+    if (tk) { api.setAdminToken(tk); setAuthed(true) }
+  }, [])
+
+  const doLogin = async () => {
+    try {
+      const { token } = await api.adminLogin(email, password)
+      localStorage.setItem(ADMIN_TOKEN_KEY, token)
+      api.setAdminToken(token)
+      setAuthed(true)
+      setLoginErr('')
+    } catch (e) { setLoginErr(e.message || 'Login failed') }
+  }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -31,7 +53,7 @@ export default function AdminPanel() {
     finally { setLoading(false) }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { if (authed) load() }, [authed, load])
 
   const approve = async (id, approved) => {
     try { await api.adminApproveUser(id, approved); showToast(approved ? 'B2B approved' : 'B2B rejected'); load() }
@@ -49,6 +71,34 @@ export default function AdminPanel() {
 
   const inr = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`
 
+  if (!authed) {
+    return (
+      <div className="min-h-screen bg-[#0c0f14] text-white flex items-center justify-center px-4 py-10">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+          className="w-full max-w-sm bg-white/5 border border-white/10 rounded-3xl p-7">
+          <div className="text-center mb-6">
+            <Shield size={36} className="mx-auto text-amber-400 mb-2" />
+            <h1 className="text-xl font-extrabold">Admin Login</h1>
+            <p className="text-xs text-white/40 mt-1">AgriChain Control Center</p>
+          </div>
+          <div className="space-y-3">
+            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@agrichain"
+              className="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50" />
+            <div className="relative">
+              <Lock size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password"
+                onKeyDown={(e) => e.key === 'Enter' && doLogin()}
+                className="w-full bg-white/10 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50" />
+            </div>
+            {loginErr && <p className="text-xs text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{loginErr}</p>}
+            <Button variant="primary" className="w-full justify-center py-3" onClick={doLogin}>Login</Button>
+          </div>
+          <p className="text-center text-[11px] text-white/30 mt-4">Demo: admin@agrichain / Adil123</p>
+        </motion.div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-[#0c0f14] text-white">
       <Navbar />
@@ -65,6 +115,8 @@ export default function AdminPanel() {
             </button>
           ))}
           <button onClick={load} className="ml-auto flex items-center gap-1.5 text-sm text-white/50 hover:text-white"><RefreshCw size={14} /> {t('Refresh')}</button>
+          <button onClick={() => { localStorage.removeItem(ADMIN_TOKEN_KEY); api.setAdminToken(null); setAuthed(false) }}
+            className="flex items-center gap-1.5 text-sm text-white/40 hover:text-red-400">Logout</button>
         </div>
 
         {loading && <p className="text-white/40 text-center py-10">{t('Loading...')}</p>}
