@@ -20,5 +20,8 @@
     "jsonwebtoken": "^9.0.3",
     "ws": "^8.21.3"
   },
-  "type": "module"
+  "type": "module",
+  "allowScripts": {
+    "better-sqlite3@12.11.1": true
+  }
 }
