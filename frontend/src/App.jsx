@@ -8,9 +8,11 @@ import AIPanel from './pages/AIPanel'
 import OrdersPage from './pages/OrdersPage'
 import AdminPanel from './pages/AdminPanel'
 import RoleGuard from './components/RoleGuard'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function App() {
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -37,6 +39,7 @@ function App() {
         } />
       </Routes>
     </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 
