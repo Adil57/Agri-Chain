@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   Bell, CalendarDays, Camera, CheckCircle2, Image as ImageIcon,
-  MapPin, Mic, Plus, Radio, Trash2, Truck, Wallet, X,
+  MapPin, Mic, Plus, Radio, Trash2, Truck, Wallet, X, Package,
 } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Card from '../components/ui/Card'
