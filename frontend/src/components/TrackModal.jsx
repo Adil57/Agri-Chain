@@ -59,16 +59,13 @@ export default function TrackModal({ orderId, canManage, onClose }) {
     map.eachLayer((l) => { if (!(l instanceof L.TileLayer)) map.removeLayer(l) })
 
     const { farm, dest, route, truck } = data
+    // route line from farm -> dest (shown for context), but we only MARK farm + live user
     const line = route?.coordinates?.length ? route.coordinates : [[farm.lat, farm.lng], [dest.lat, dest.lng]]
 
     L.polyline(line, { color: '#16a34a', weight: 4, opacity: 0.75 }).addTo(map)
+    // only farm (green) + live user (red) markers — no truck / no factory marker
     L.marker([farm.lat, farm.lng], { icon: pin('🌾', '#16a34a') }).addTo(map).bindPopup(`<b>Farm</b><br>${farm.place}`)
-    L.marker([dest.lat, dest.lng], { icon: pin('🏭', '#2563eb') }).addTo(map).bindPopup(`<b>Buyer</b><br>${dest.place}`)
-    if (truck) L.marker(truck, { icon: truckIcon }).addTo(map).bindPopup(`🚚 ${data.ship_status}`)
-    // live user position (real-time GPS)
-    if (livePos) {
-      L.marker(livePos, { icon: pin('📍', '#ef4444') }).addTo(map).bindPopup('You (live)')
-    }
+    if (livePos) L.marker(livePos, { icon: pin('📍', '#ef4444') }).addTo(map).bindPopup('You (live)')
 
     const bounds = L.latLngBounds(line)
     if (livePos) bounds.extend(livePos)
