@@ -28,7 +28,13 @@ export default function AdminPanel() {
 
   useEffect(() => {
     const tk = localStorage.getItem(ADMIN_TOKEN_KEY)
-    if (tk) { api.setAdminToken(tk); setAuthed(true) }
+    if (tk) {
+      api.setAdminToken(tk)
+      // validate token before marking authed
+      api.adminStats()
+        .then(() => setAuthed(true))
+        .catch(() => { localStorage.removeItem(ADMIN_TOKEN_KEY); api.setAdminToken(null); setAuthed(false) })
+    }
   }, [])
 
   const doLogin = async () => {
@@ -48,7 +54,16 @@ export default function AdminPanel() {
         api.adminStats(), api.adminUsers(), api.adminOrders(), api.adminListings(),
       ])
       setStats(s); setUsers(u); setOrders(o); setListings(l)
-    } catch (e) { showToast(e.message) }
+    } catch (e) {
+      // auth failure → drop back to login
+      if (/401|403|token|unauthorized/i.test(e.message)) {
+        localStorage.removeItem(ADMIN_TOKEN_KEY)
+        api.setAdminToken(null)
+        setAuthed(false)
+      } else {
+        showToast(e.message)
+      }
+    }
     finally { setLoading(false) }
   }, [])
 
